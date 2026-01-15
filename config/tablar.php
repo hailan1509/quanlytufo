@@ -42,7 +42,7 @@ return [
     'auth_logo' => [
         'enabled' => false,
         'img' => [
-            'path' => 'assets/tablar-logo.png',
+            'path' => 'assets/tablar-logo.jpg',
             'alt' => 'Auth Logo',
             'class' => '',
             'width' => 50,
@@ -112,7 +112,7 @@ return [
     */
 
     'use_route_url' => true,
-    'dashboard_url' => 'home',
+    'dashboard_url' => 'products',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -144,11 +144,11 @@ return [
 
     'menu' => [
         // Navbar items:
-        [
-            'text' => 'Home',
-            'icon' => 'ti ti-home',
-            'url' => 'home',
-        ],
+        // [
+        //     'text' => 'Home',
+        //     'icon' => 'ti ti-home',
+        //     'url' => 'home',
+        // ],
         [
             'text' => 'Quản lý loại sản phẩm',
             'icon' => 'ti ti-category',
