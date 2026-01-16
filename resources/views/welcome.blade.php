@@ -163,9 +163,9 @@
                          loading="lazy"
                          decoding="async">
                     <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
-                        <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li>
+                        <!-- <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li> -->
                         <li class="icon mx-3"><span class="far fa-heart"></span></li>
-                        <li class="icon"><span class="fas fa-shopping-bag"></span></li>
+                        <!-- <li class="icon"><span class="fas fa-shopping-bag"></span></li> -->
                     </ul>
                 </div>
                 @if($product->promotion > 0)
