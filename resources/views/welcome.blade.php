@@ -45,8 +45,8 @@
         .product-item .product { width: 100%; height: 300px; position: relative; overflow: hidden; cursor: pointer; }
         .product-item .product img { width: 100%; height: 100%; object-fit: cover; }
         .product-item .product .icons { position: absolute; bottom: 20px; left: 0; right: 0; }
-        .product-item .product .icons .icon { width: 40px; height: 40px; background-color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: transform 0.6s ease; transform: rotate(180deg); cursor: pointer; }
-        .product-item .product .icons .icon:hover { background-color: #b71c1c; color: #fff; }
+        .product-item .product .icons .icon { width: 40px; height: 40px; background-color: rgba(255,255,255,0.55); border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: transform 0.6s ease, background-color .2s ease; transform: rotate(180deg); cursor: pointer; }
+        .product-item .product .icons .icon:hover { background-color: rgba(183,28,28,0.7); color: #fff; }
         .product-item .product .icons .icon:nth-last-of-type(3) { transition-delay: 0.2s; }
         .product-item .product .icons .icon:nth-last-of-type(2) { transition-delay: 0.15s; }
         .product-item .product .icons .icon:nth-last-of-type(1) { transition-delay: 0.1s; }
