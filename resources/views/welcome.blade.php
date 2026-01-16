@@ -56,6 +56,46 @@
         .bg-black { background-color: #1f1d1d; color: #fff; }
         .bg-red { background-color: #bb3535; color: #fff; }
         .color-red { color:rgb(253, 75, 5); }
+        .search-animated {
+            position: relative;
+            max-width: 480px;
+            margin: 12px auto 8px;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .search-animated input {
+            width: 100%;
+            padding: 10px 44px 10px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 999px;
+            outline: none;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+            transition: box-shadow .2s ease, border-color .2s ease;
+        }
+        .search-animated input:focus {
+            border-color: #b71c1c;
+            box-shadow: 0 10px 20px rgba(183,28,28,0.12);
+        }
+        .search-animated button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: #b71c1c;
+            color: #fff;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .search-animated button:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 8px 16px rgba(183,28,28,0.25);
+            background: #e63c3c;
+        }
         @media (max-width: 767.5px) {
             .product-item { height: 260px; }
             .product-item .product { height: 150px; }
@@ -85,6 +125,14 @@
             </div>
         </div>
     </nav>
+
+    <div class="search-animated">
+        <form method="GET" action="{{ route('welcome') }}">
+            <input type="hidden" name="category" value="{{ request('category') }}">
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Tìm sản phẩm..." aria-label="Tìm sản phẩm">
+            <button type="submit"><span class="fas fa-search"></span></button>
+        </form>
+    </div>
 
     <div class="row" id="product-list">
         @forelse($products as $product)
