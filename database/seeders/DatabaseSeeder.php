@@ -16,10 +16,10 @@ class DatabaseSeeder extends Seeder
     {
         // Create a default admin user if it does not already exist.
         User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Admin',
-                'password' => Hash::make('password'), // change after first login
+                'password' => Hash::make('admin123'), // change after first login
             ]
         );
     }

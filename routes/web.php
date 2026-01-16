@@ -13,12 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
- return view('welcome');
-});
+Route::get('/', \App\Http\Controllers\LandingController::class)->name('welcome');
 Auth::routes();
-
-Route::get('/home', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::middleware('auth')->group(function () {
  Route::resource('product-categories', \App\Http\Controllers\ProductCategoryController::class)

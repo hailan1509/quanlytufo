@@ -150,16 +150,16 @@ return [
         //     'url' => 'home',
         // ],
         [
+            'text' => 'Quản lý sản phẩm',
+            'icon' => 'ti ti-package',
+            'url' => 'products',
+            'active' => ['products*'],
+        ],
+        [
             'text' => 'Quản lý loại sản phẩm',
             'icon' => 'ti ti-category',
             'url' => 'product-categories',
             'active' => ['product-categories*'],
-        ],
-        [
-            'text' => 'Sản phẩm',
-            'icon' => 'ti ti-package',
-            'url' => 'products',
-            'active' => ['products*'],
         ],
     ],
 
