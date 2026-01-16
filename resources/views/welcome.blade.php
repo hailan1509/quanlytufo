@@ -4,6 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TOFU TỔNG KHO SỈ</title>
+    <meta name="description" content="TOFU tổng kho sỉ đồ chơi trẻ em, vật dụng gia đình, đồ lưu niệm. Tìm kiếm sản phẩm nhanh, giá tốt, giao diện thân thiện di động.">
+    <meta name="keywords" content="TOFU, tổng kho sỉ, đồ chơi trẻ em, vật dụng gia đình, đồ lưu niệm, sản phẩm giá sỉ">
+    <meta property="og:title" content="TOFU tổng kho sỉ đồ chơi trẻ em, vật dụng gia đình, đồ lưu niệm">
+    <meta property="og:description" content="Xem và tìm kiếm sản phẩm nhanh chóng trên TOFU: đồ chơi trẻ em, đồ gia đình, đồ lưu niệm, giá sỉ.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('assets/tablar-logo.jpg') }}">
+    <meta property="og:image:alt" content="TOFU tổng kho hàng gia dụng - Đồ chơi">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="TOFU tổng kho sỉ đồ chơi trẻ em, vật dụng gia đình, đồ lưu niệm">
+    <meta name="twitter:description" content="Tìm kiếm sản phẩm nhanh, giá sỉ, giao diện thân thiện di động.">
+    <meta name="twitter:image" content="{{ asset('assets/tablar-logo.jpg') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
