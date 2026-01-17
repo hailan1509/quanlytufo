@@ -17,7 +17,7 @@
 
     <div class="col-md-12">
         <label class="form-label required">Loại sản phẩm (chọn nhiều)</label>
-        <select name="product_categories[]" class="form-select" multiple required>
+        <select name="product_categories[]" id="product-categories-select" class="form-select" multiple required>
             @php
                 $selected = collect(old('product_categories', isset($product) ? $product->categories->pluck('id')->all() : []))->map(fn($v) => (int) $v)->toArray();
             @endphp

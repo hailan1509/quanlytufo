@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: quanlytufo_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - quanlytufo_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8000:8000"
+
+  nginx:
+    image: nginx:alpine
+    container_name: quanlytufo_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - quanlytufo_network
+    depends_on:
+      - app
+
+  node:
+    image: node:20-alpine
+    container_name: quanlytufo_node
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - /var/www/html/node_modules
+    networks:
+      - quanlytufo_network
+    command: sh -c "npm install --legacy-peer-deps && npm run dev"
+    ports:
+      - "5173:5173"
+      - "3000:3000"
+    depends_on:
+      - app
+
+networks:
+  quanlytufo_network:
+    driver: bridge
+
