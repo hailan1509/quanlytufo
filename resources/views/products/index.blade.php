@@ -29,6 +29,35 @@
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="GET" action="{{ route('products.index') }}" class="row g-3 align-items-end">
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label mb-1">Tên sản phẩm</label>
+                            <input type="text" name="q" value="{{ $search }}" class="form-control" placeholder="Nhập tên hoặc mô tả">
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <label class="form-label mb-1">Loại sản phẩm</label>
+                            <select name="category" class="form-select">
+                                <option value="">-- Tất cả --</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}" {{ (string)($categoryId ?? '') === (string)$cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-2 col-lg-2">
+                            <button class="btn btn-primary w-100" type="submit">Lọc</button>
+                        </div>
+                        @if($search || $categoryId)
+                            <div class="col-12 col-md-2 col-lg-2">
+                                <a class="btn btn-outline-danger w-100" href="{{ route('products.index') }}">Xoá lọc</a>
+                            </div>
+                        @endif
+                    </form>
+                </div>
+            </div>
             <div class="card">
                 <div class="table-responsive">
                     <table class="table card-table table-vcenter">

@@ -161,6 +161,12 @@ return [
             'url' => 'product-categories',
             'active' => ['product-categories*'],
         ],
+        [
+            'text' => 'Quản lý đơn hàng',
+            'icon' => 'ti ti-receipt-2',
+            'url' => 'orders',
+            'active' => ['orders*'],
+        ],
     ],
 
     /*

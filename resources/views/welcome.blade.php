@@ -69,6 +69,57 @@
         .bg-black { background-color: #1f1d1d; color: #fff; }
         .bg-red { background-color: #bb3535; color: #fff; }
         .color-red { color:rgb(253, 75, 5); }
+        .floating-cart-btn {
+            position: fixed;
+            right: 16px;
+            bottom: 18px;
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        .floating-cart-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        @media (max-width: 576px) {
+            .floating-cart-btn { width: 48px; height: 48px; right: 12px; bottom: 14px; }
+        }
+        .form-error {
+            color: #dc3545;
+            font-size: 0.85rem;
+        }
+        .floating-top-btn {
+            position: fixed;
+            right: 16px;
+            bottom: 82px;
+            z-index: 1049;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        .floating-top-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        @media (max-width: 576px) {
+            .floating-top-btn { right: 12px; bottom: 72px; width: 42px; height: 42px; }
+        }
         .search-animated {
             position: relative;
             max-width: 480px;
@@ -146,6 +197,18 @@
             <button type="submit"><span class="fas fa-search"></span></button>
         </form>
     </div>
+    <div class="d-flex justify-content-end align-items-center mb-2 pe-1">
+        <button type="button"
+                class="btn btn-sm btn-outline-dark position-relative d-flex align-items-center justify-content-center"
+                id="open-cart"
+                aria-label="Xem giỏ hàng">
+            <span class="fas fa-shopping-bag"></span>
+            <span id="cart-count"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                0
+            </span>
+        </button>
+    </div>
 
     <div class="row" id="product-list">
         @forelse($products as $product)
@@ -164,8 +227,14 @@
                          decoding="async">
                     <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
                         <!-- <li class="icon"><span class="fas fa-expand-arrows-alt"></span></li> -->
-                        <li class="icon mx-3"><span class="far fa-heart"></span></li>
-                        <!-- <li class="icon"><span class="fas fa-shopping-bag"></span></li> -->
+                        <!-- <li class="icon mx-3"><span class="far fa-heart"></span></li> -->
+                         <li class="icon mx-3 add-to-cart"
+                             data-id="{{ $product->id }}"
+                             data-name="{{ $product->name }}"
+                             data-price="{{ $product->price }}"
+                             data-image="{{ $imgUrl }}">
+                             <span class="fas fa-shopping-bag"></span>
+                         </li>
                     </ul>
                 </div>
                 @if($product->promotion > 0)
@@ -194,6 +263,92 @@
             </div>
         </div>
     @endif -->
+</div>
+
+<!-- Cart modal -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <h5 class="modal-title mb-0" id="cartModalLabel">Giỏ hàng</h5>
+                    <button type="button" class="btn btn-sm btn-outline-danger" id="clear-cart">Xoá giỏ</button>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div id="cart-items" class="d-flex flex-column gap-3 small"></div>
+                <hr>
+                <button type="button" class="btn btn-outline-secondary btn-sm mb-2" id="toggle-checkout-info">
+                    Thông tin thanh toán
+                </button>
+                <div id="checkout-info" class="d-none">
+                    <div class="mb-2">
+                        <label class="form-label mb-1">Họ tên *</label>
+                        <input type="text" class="form-control form-control-sm" id="checkout-name" placeholder="Nhập họ tên">
+                        <div class="form-error d-none" data-error-for="checkout-name"></div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label mb-1">Số điện thoại *</label>
+                        <input type="tel" class="form-control form-control-sm" id="checkout-phone" placeholder="VD: 098xxxxxxx">
+                        <div class="form-error d-none" data-error-for="checkout-phone"></div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label mb-1">Địa chỉ *</label>
+                        <textarea class="form-control form-control-sm" rows="2" id="checkout-address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+                        <div class="form-error d-none" data-error-for="checkout-address"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex flex-column align-items-stretch gap-2">
+                <div class="w-100 d-flex justify-content-between fw-semibold">
+                    <span>Tổng</span>
+                    <span id="cart-total">0₫</span>
+                </div>
+                <div class="d-flex w-100 gap-2">
+                    <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary flex-fill" id="checkout-btn">Thanh toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating cart button -->
+<button type="button"
+        class="btn btn-dark floating-cart-btn position-fixed"
+        id="open-cart-floating"
+        aria-label="Xem giỏ hàng nhanh">
+    <span class="fas fa-shopping-bag"></span>
+    <span id="cart-count-floating"
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        0
+    </span>
+</button>
+<button type="button"
+        class="btn btn-outline-secondary floating-top-btn"
+        id="scroll-top-btn"
+        aria-label="Lên đầu trang">
+    <span class="fas fa-arrow-up"></span>
+</button>
+
+<!-- Order success modal -->
+<div class="modal fade" id="orderSuccessModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Đặt hàng thành công</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="fw-semibold mb-1">Mã đơn hàng: <span id="order-success-id" class="text-danger"></span></p>
+                <p class="mb-0 text-muted">Vui lòng để ý điện thoại, TUFO sẽ liên hệ lại ngay.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -286,6 +441,289 @@
         }, { rootMargin: '200px' });
 
         observer.observe(loadMoreEl);
+    })();
+</script>
+<script>
+    (() => {
+        const STORAGE_KEY = 'tufo_cart_items';
+        const cartCountEl = document.getElementById('cart-count');
+        const openCartBtn = document.getElementById('open-cart');
+        const floatingCartBtn = document.getElementById('open-cart-floating');
+        const scrollTopBtn = document.getElementById('scroll-top-btn');
+        const cartModalEl = document.getElementById('cartModal');
+        const cartItemsEl = document.getElementById('cart-items');
+        const cartTotalEl = document.getElementById('cart-total');
+        const clearCartBtn = document.getElementById('clear-cart');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const toggleCheckoutInfoBtn = document.getElementById('toggle-checkout-info');
+        const checkoutInfoBox = document.getElementById('checkout-info');
+        const orderSuccessModalEl = document.getElementById('orderSuccessModal');
+        const orderSuccessIdEl = document.getElementById('order-success-id');
+        const orderSuccessModal = orderSuccessModalEl ? new bootstrap.Modal(orderSuccessModalEl) : null;
+        const checkoutNameEl = document.getElementById('checkout-name');
+        const checkoutPhoneEl = document.getElementById('checkout-phone');
+        const checkoutAddressEl = document.getElementById('checkout-address');
+        const modalInstance = cartModalEl ? new bootstrap.Modal(cartModalEl) : null;
+
+        const loadCart = () => {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch (e) {
+                return [];
+            }
+        };
+
+        const saveCart = (items) => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        };
+
+        const formatPrice = (n) => {
+            const num = Number(n) || 0;
+            return new Intl.NumberFormat('vi-VN').format(num) + '₫';
+        };
+
+        const updateCount = () => {
+            const total = loadCart().reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+            if (cartCountEl) cartCountEl.textContent = total;
+            const floatingBadge = document.getElementById('cart-count-floating');
+            if (floatingBadge) floatingBadge.textContent = total;
+        };
+
+        const renderCart = () => {
+            if (!cartItemsEl || !cartTotalEl) return;
+            const items = loadCart();
+            if (!items.length) {
+                cartItemsEl.innerHTML = '<div class="text-center text-muted">Giỏ hàng trống</div>';
+                cartTotalEl.textContent = '0₫';
+                return;
+            }
+            let total = 0;
+            cartItemsEl.innerHTML = '';
+            items.forEach(item => {
+                const lineTotal = (Number(item.price) || 0) * (Number(item.qty) || 0);
+                total += lineTotal;
+                const row = document.createElement('div');
+                row.className = 'd-flex align-items-center gap-2';
+                row.innerHTML = `
+                    <img src="${item.image || ''}" alt="${item.name}" class="rounded" style="width:48px;height:48px;object-fit:cover;">
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">${item.name}</div>
+                        <div class="text-muted">SL: ${item.qty} x ${formatPrice(item.price)}</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-semibold">${formatPrice(lineTotal)}</div>
+                        <button class="btn btn-sm btn-link text-danger p-0 remove-cart-item" data-id="${item.id}">Xoá</button>
+                    </div>
+                `;
+                cartItemsEl.appendChild(row);
+            });
+            cartTotalEl.textContent = formatPrice(total);
+        };
+
+        const removeItem = (id) => {
+            const items = loadCart().filter(i => Number(i.id) !== Number(id));
+            saveCart(items);
+            updateCount();
+            renderCart();
+        };
+
+        const setError = (field, message) => {
+            const err = document.querySelector(`[data-error-for="${field.id}"]`);
+            if (!err) return;
+            if (message) {
+                err.textContent = message;
+                err.classList.remove('d-none');
+            } else {
+                err.textContent = '';
+                err.classList.add('d-none');
+            }
+        };
+
+        const showCheckoutInfo = () => {
+            if (!checkoutInfoBox) return;
+            checkoutInfoBox.classList.remove('d-none');
+        };
+
+        const toggleCheckoutInfo = () => {
+            if (!checkoutInfoBox) return;
+            checkoutInfoBox.classList.toggle('d-none');
+        };
+
+        const validateForm = () => {
+            let valid = true;
+            const name = checkoutNameEl?.value.trim() || '';
+            const phone = checkoutPhoneEl?.value.trim() || '';
+            const address = checkoutAddressEl?.value.trim() || '';
+
+            if (checkoutNameEl) {
+                if (!name) { setError(checkoutNameEl, 'Vui lòng nhập họ tên'); valid = false; }
+                else setError(checkoutNameEl, '');
+            }
+            if (checkoutPhoneEl) {
+                const phoneOk = /^0\d{9,10}$/.test(phone);
+                if (!phone) { setError(checkoutPhoneEl, 'Vui lòng nhập số điện thoại'); valid = false; }
+                else if (!phoneOk) { setError(checkoutPhoneEl, 'Số điện thoại không hợp lệ'); valid = false; }
+                else setError(checkoutPhoneEl, '');
+            }
+            if (checkoutAddressEl) {
+                if (!address) { setError(checkoutAddressEl, 'Vui lòng nhập địa chỉ'); valid = false; }
+                else setError(checkoutAddressEl, '');
+            }
+            if (!valid) showCheckoutInfo();
+            return valid ? { name, phone, address } : null;
+        };
+
+        const handleCheckout = () => {
+            const cart = loadCart();
+            if (!cart.length) {
+                alert('Giỏ hàng đang trống.');
+                return;
+            }
+            showCheckoutInfo();
+            const info = validateForm();
+            if (!info) return;
+
+            const payload = {
+                customer: info,
+                items: cart.map(i => ({
+                    id: i.id,
+                    name: i.name,
+                    price: i.price,
+                    qty: i.qty,
+                })),
+            };
+
+            checkoutBtn?.setAttribute('disabled', 'disabled');
+            checkoutBtn?.classList.add('disabled');
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify(payload),
+            })
+                .then(async res => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        const msg = data.message || 'Không thể tạo đơn hàng.';
+                        throw new Error(msg);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    if (orderSuccessIdEl) {
+                        orderSuccessIdEl.textContent = '#' + data.order_id;
+                    }
+                    orderSuccessModal?.show();
+                    saveCart([]);
+                    updateCount();
+                    renderCart();
+                    checkoutNameEl && (checkoutNameEl.value = '');
+                    checkoutPhoneEl && (checkoutPhoneEl.value = '');
+                    checkoutAddressEl && (checkoutAddressEl.value = '');
+                    modalInstance?.hide();
+                })
+                .catch(err => {
+                    alert(err.message || 'Có lỗi xảy ra khi gửi đơn hàng.');
+                })
+                .finally(() => {
+                    checkoutBtn?.removeAttribute('disabled');
+                    checkoutBtn?.classList.remove('disabled');
+                });
+        };
+
+        const bindCartButtons = () => {
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                if (btn.dataset.boundCart) return;
+                btn.dataset.boundCart = '1';
+                btn.addEventListener('click', () => {
+                    const product = {
+                        id: Number(btn.dataset.id),
+                        name: btn.dataset.name || 'Sản phẩm',
+                        price: Number(btn.dataset.price) || 0,
+                        image: btn.dataset.image || '',
+                        qty: 1,
+                    };
+                    const items = loadCart();
+                    const found = items.find(i => i.id === product.id);
+                    if (found) {
+                        found.qty = Number(found.qty || 0) + 1;
+                    } else {
+                        items.push(product);
+                    }
+                    saveCart(items);
+                    updateCount();
+
+                    btn.classList.add('bg-red', 'text-white');
+                    setTimeout(() => btn.classList.remove('bg-red', 'text-white'), 600);
+                });
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            bindCartButtons();
+            updateCount();
+            if (openCartBtn && modalInstance) {
+                openCartBtn.addEventListener('click', () => {
+                    renderCart();
+                    modalInstance.show();
+                });
+            }
+            if (floatingCartBtn && modalInstance) {
+                floatingCartBtn.addEventListener('click', () => {
+                    renderCart();
+                    modalInstance.show();
+                });
+            }
+            if (scrollTopBtn) {
+                scrollTopBtn.addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+            if (clearCartBtn) {
+                clearCartBtn.addEventListener('click', () => {
+                    saveCart([]);
+                    updateCount();
+                    renderCart();
+                });
+            }
+            if (cartItemsEl) {
+                cartItemsEl.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.remove-cart-item');
+                    if (btn?.dataset.id) {
+                        removeItem(btn.dataset.id);
+                    }
+                });
+            }
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', handleCheckout);
+            }
+            if (toggleCheckoutInfoBtn) {
+                toggleCheckoutInfoBtn.addEventListener('click', toggleCheckoutInfo);
+            }
+
+            // Floating cart visibility on scroll
+            const toggleFloating = () => {
+                const shouldShow = window.scrollY > 120;
+                if (floatingCartBtn) {
+                    floatingCartBtn.classList.toggle('show', shouldShow);
+                }
+                if (scrollTopBtn) {
+                    scrollTopBtn.classList.toggle('show', shouldShow);
+                }
+            };
+            toggleFloating();
+            window.addEventListener('scroll', toggleFloating, { passive: true });
+        });
+
+        // Re-bind when new items appended via infinite scroll
+        const listEl = document.getElementById('product-list');
+        if (listEl && 'MutationObserver' in window) {
+            const mo = new MutationObserver(bindCartButtons);
+            mo.observe(listEl, { childList: true, subtree: true });
+        }
     })();
 </script>
 </body>

@@ -20,4 +20,5 @@ Route::middleware('auth')->group(function () {
  Route::resource('product-categories', \App\Http\Controllers\ProductCategoryController::class)
  ->parameters(['product-categories' => 'productCategory']);
  Route::resource('products', \App\Http\Controllers\ProductController::class);
+ Route::resource('orders', \App\Http\Controllers\OrderController::class)->only(['index','show','update']);
 });

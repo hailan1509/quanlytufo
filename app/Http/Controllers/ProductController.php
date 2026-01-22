@@ -16,11 +16,28 @@ class ProductController extends Controller
 {
     public function index(): View
     {
-        $products = Product::with(['categories', 'createdBy'])
-            ->latest()
-            ->paginate(10);
+        $search = request()->string('q')->trim();
+        $categoryId = request()->input('category');
 
-        return view('products.index', compact('products'));
+        $products = Product::with(['categories', 'createdBy'])
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->when($categoryId, function ($q) use ($categoryId) {
+                $q->whereHas('categories', function ($sub) use ($categoryId) {
+                    $sub->where('product_categories.id', $categoryId);
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $categories = ProductCategory::where('status', 1)->orderBy('name')->get();
+
+        return view('products.index', compact('products', 'categories', 'search', 'categoryId'));
     }
 
     public function create(): View
