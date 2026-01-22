@@ -80,7 +80,10 @@
 @endphp
 
 <div class="top-nav">
-    <div class="menu-icon">☰</div>
+    <a class="menu-icon" href="{{ route('welcome') }}" aria-label="Quay lại trang chủ" style="color:#ee4d2d;">←</a>
+    <div class="flex-grow-1 text-center px-3 d-flex align-items-center justify-content-center">
+        <span class="fw-semibold d-inline-block text-truncate" style="max-width: 60vw;">{{ $product->name }}</span>
+    </div>
     <div class="cart-icon" id="hero-click">
         🛒
         <span class="cart-badge" id="detail-cart-count">0</span>
