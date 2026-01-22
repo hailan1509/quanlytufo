@@ -22,7 +22,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;800&display=swap');
         * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-        body { background-color: bisque; }
+        body { background-color: bisque;  }
         /* .container { margin: 30px auto; } */
         .navbar-nav .nav-link { color: #000 !important; padding: 0.5rem 0rem !important; border-color: transparent; margin-left: 1.5rem; transition: none; }
         .navbar .navbar-toggler:focus { box-shadow: none; }
@@ -217,6 +217,9 @@
                     $imgUrl = app()->environment('production')
                         ? asset('storage/'.$product->thumbnail_path)
                         : 'http://154.26.136.88:8081/storage/'.$product->thumbnail_path;
+                    $finalPrice = $product->promotion > 0
+                        ? $product->price * (1 - $product->promotion / 100)
+                        : $product->price;
                 @endphp
                 <div class="product">
                     <img class="lazy-img"
@@ -231,7 +234,7 @@
                          <li class="icon mx-3 add-to-cart"
                              data-id="{{ $product->id }}"
                              data-name="{{ $product->name }}"
-                             data-price="{{ $product->price }}"
+                             data-price="{{ $finalPrice }}"
                              data-image="{{ $imgUrl }}">
                              <span class="fas fa-shopping-bag"></span>
                          </li>
@@ -242,8 +245,23 @@
                 @else
                     <div class="tag {{ $product->status ? 'bg-green' : 'bg-black' }}">{{ $product->status ? 'new' : 'ngưng' }}</div>
                 @endif
-                <div class="title pt-4 pb-1 text-center">{{ $product->name }}</div>
-                <div class="price">{{ number_format($product->price, 0, ',', '.') }}₫</div>
+                <a class="title pt-4 pb-1 text-center d-block text-decoration-none text-dark"
+                   href="{{ route('product.detail', $product) }}">
+                    {{ $product->name }}
+                </a>
+                <div class="price">
+                    <span class="fw-bold text-danger">{{ number_format($finalPrice, 0, ',', '.') }}₫</span>
+                    @if($product->promotion > 0)
+                        <small class="text-muted text-decoration-line-through ms-1">{{ number_format($product->price, 0, ',', '.') }}₫</small>
+                    @endif
+                </div>
+                <a class="btn btn-sm btn-outline-dark w-100 mt-auto position-relative overflow-hidden"
+                   style="border-radius: 12px; font-weight: 600; letter-spacing: 0.3px;"
+                   href="{{ route('product.detail', $product) }}">
+                    <span class="position-relative" style="z-index:2;">Xem chi tiết</span>
+                    <span class="position-absolute top-0 start-0 w-100 h-100"
+                          style="background: linear-gradient(135deg, rgba(183,28,28,0.1), rgba(0,0,0,0.05)); z-index:1;"></span>
+                </a>
             </div>
         @empty
             <div class="col-12 text-center py-4">Không có sản phẩm.</div>
