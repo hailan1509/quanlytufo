@@ -255,12 +255,12 @@
                         <small class="text-muted text-decoration-line-through ms-1">{{ number_format($product->price, 0, ',', '.') }}₫</small>
                     @endif
                 </div>
-                <a class="btn btn-sm btn-outline-dark w-100 mt-auto position-relative overflow-hidden"
-                   style="border-radius: 12px; font-weight: 600; letter-spacing: 0.3px;"
+                <a class="btn btn-sm w-100 mt-auto position-relative overflow-hidden"
+                   style="border-radius: 12px; font-weight: 700; letter-spacing: 0.3px; color:#fff; background:#ee4d2d; border:1px solid #adadad; padding: 6px 10px; height: 36px; line-height: 22px; margin-bottom: 5px;"
                    href="{{ route('product.detail', $product) }}">
                     <span class="position-relative" style="z-index:2;">Xem chi tiết</span>
                     <span class="position-absolute top-0 start-0 w-100 h-100"
-                          style="background: linear-gradient(135deg, rgba(183,28,28,0.1), rgba(0,0,0,0.05)); z-index:1;"></span>
+                          style="background: linear-gradient(135deg, rgba(238,77,45,0.15), rgba(238,77,45,0.08)); z-index:1; border:1px solid rgba(0,0,0,0.05); border-radius: 12px;"></span>
                 </a>
             </div>
         @empty
