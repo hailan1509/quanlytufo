@@ -216,14 +216,10 @@
                 @php
                     $imgUrl = app()->environment('production')
                         ? asset('storage/'.$product->thumbnail_path)
-<<<<<<< HEAD
-                        : 'http://180.93.2.247:80/storage/'.$product->thumbnail_path;
-=======
                         : 'http://154.26.136.88:8081/storage/'.$product->thumbnail_path;
                     $finalPrice = $product->promotion > 0
                         ? $product->price * (1 - $product->promotion / 100)
                         : $product->price;
->>>>>>> 71d349f6b487eb766165aa1b3e183d97f67c858d
                 @endphp
                 <div class="product">
                     <img class="lazy-img"
