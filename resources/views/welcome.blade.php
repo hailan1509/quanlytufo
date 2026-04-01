@@ -153,7 +153,7 @@
                 @php
                     $imgUrl = app()->environment('production')
                         ? asset('storage/'.$product->thumbnail_path)
-                        : 'http://154.26.136.88:8081/storage/'.$product->thumbnail_path;
+                        : 'http://180.93.2.247:80/storage/'.$product->thumbnail_path;
                 @endphp
                 <div class="product">
                     <img class="lazy-img"
