@@ -13,6 +13,7 @@
         <label class="form-label">Khuyến mãi (%)</label>
         <input type="number" step="0.01" min="0" max="100" name="promotion" value="{{ old('promotion', $product->promotion ?? 0) }}" class="form-control">
         @error('promotion')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+        <div class="text-muted small mt-1">Giá sau KM: <span id="final-price-preview"></span>₫</div>
     </div>
 
     <div class="col-md-12">
@@ -32,7 +33,7 @@
 
     <div class="col-md-12">
         <label class="form-label">Mô tả</label>
-        <textarea name="description" class="form-control" rows="4">{{ old('description', $product->description ?? '') }}</textarea>
+        <textarea name="description" id="description-editor" class="form-control" rows="6">{{ old('description', $product->description ?? '') }}</textarea>
         @error('description')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
     </div>
 
@@ -49,6 +50,61 @@
         @endisset
     </div>
 
+<script>
+    (function() {
+        const initEditor = () => {
+            const el = document.getElementById('description-editor');
+            if (!el || el.dataset.boundEditor || !window.ClassicEditor) return;
+            el.dataset.boundEditor = '1';
+            ClassicEditor.create(el, {
+                toolbar: [
+                    'heading',
+                    '|',
+                    'bold','italic','underline','strikethrough','code',
+                    'subscript','superscript','removeFormat',
+                    '|',
+                    'link','blockQuote','horizontalLine','mediaEmbed',
+                    '|',
+                    'bulletedList','numberedList','outdent','indent','alignment',
+                    '|',
+                    'insertTable',
+                    '|',
+                    'undo','redo'
+                ],
+                table: {
+                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
+                }
+            }).then(editor => {
+                const editable = editor.ui.getEditableElement();
+                if (editable) editable.style.minHeight = '260px';
+            }).catch(console.error);
+        };
+
+        if (!window.ClassicEditor) {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js';
+            s.onload = initEditor;
+            document.head.appendChild(s);
+        } else {
+            initEditor();
+        }
+    })();
+    (function() {
+        const priceEl = document.querySelector('input[name="price"]');
+        const promoEl = document.querySelector('input[name="promotion"]');
+        const previewEl = document.getElementById('final-price-preview');
+        const fmt = (n) => new Intl.NumberFormat('vi-VN').format(n);
+        const update = () => {
+            const price = parseFloat(priceEl?.value || '0') || 0;
+            const promo = parseFloat(promoEl?.value || '0') || 0;
+            const finalPrice = price * (1 - promo / 100);
+            if (previewEl) previewEl.textContent = fmt(Math.max(finalPrice, 0));
+        };
+        priceEl?.addEventListener('input', update);
+        promoEl?.addEventListener('input', update);
+        update();
+    })();
+</script>
     <div class="col-md-8">
         <label class="form-label">Ảnh chi tiết (có thể chọn nhiều)</label>
         <input type="file" name="detail_images[]" accept="image/*" class="form-control" multiple>

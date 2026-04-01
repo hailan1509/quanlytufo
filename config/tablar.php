@@ -10,10 +10,10 @@ return [
     |
     */
 
-    'title' => 'Tablar',
+    'title' => 'Quản lý TUFO',
     'title_prefix' => '',
     'title_postfix' => '',
-    'bottom_title' => 'Tablar',
+    'bottom_title' => 'Quản lý TUFO',
     'current_version' => 'v11.11',
 
 
@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'logo' => '<b>Tab</b>LAR',
+    'logo' => '<b>TUFO</b>tổng kho',
     'logo_img_alt' => 'Admin Logo',
 
     /*
@@ -160,6 +160,12 @@ return [
             'icon' => 'ti ti-category',
             'url' => 'product-categories',
             'active' => ['product-categories*'],
+        ],
+        [
+            'text' => 'Quản lý đơn hàng',
+            'icon' => 'ti ti-receipt-2',
+            'url' => 'orders',
+            'active' => ['orders*'],
         ],
     ],
 
