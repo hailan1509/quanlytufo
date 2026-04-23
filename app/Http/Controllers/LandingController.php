@@ -16,14 +16,16 @@ class LandingController extends Controller
         $query = Product::with('categories')
             ->where('status', 1);
 
-        if ($search = $request->string('q')->trim()) {
+        $search = trim((string) $request->input('q', ''));
+        if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
                     ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
 
-        if ($categoryId = $request->input('category')) {
+        $categoryId = $request->integer('category');
+        if ($categoryId) {
             $query->whereHas('categories', function ($q) use ($categoryId) {
                 $q->where('product_categories.id', $categoryId);
             });

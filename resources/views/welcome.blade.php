@@ -607,9 +607,25 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                    .then(res => res.text())
-                    .then(renderMore)
-                    .catch(() => {
+                    .then(async (res) => {
+                        const html = await res.text();
+                        if (!res.ok) {
+                            throw new Error('HTTP ' + res.status);
+                        }
+                        return html;
+                    })
+                    .then((html) => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const hasList = !!doc.getElementById('product-list');
+                        const hasLoadMore = !!doc.getElementById('load-more');
+                        if (!hasList || !hasLoadMore) {
+                            throw new Error('Invalid response HTML');
+                        }
+                        renderMore(html);
+                    })
+                    .catch((err) => {
+                        console.error('Load more failed:', err);
                         loadMoreText.textContent = 'Lỗi tải thêm';
                     })
                     .finally(() => {
