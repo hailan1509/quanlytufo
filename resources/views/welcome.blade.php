@@ -422,8 +422,17 @@
         </div>
 
         <div class="row">
-            <div class="col-12 text-center py-3" id="load-more" data-next="{{ $products->nextPageUrl() }}">
-                <span class="text-muted small" id="load-more-text">{{ $products->nextPageUrl() ? 'Kéo xuống để tải thêm...' : 'Đã hết sản phẩm' }}</span>
+            @php
+                $apiNext = $products->hasMorePages()
+                    ? url('/api/products') . '?' . http_build_query(array_filter([
+                        'page' => $products->currentPage() + 1,
+                        'q' => request('q'),
+                        'category' => request('category'),
+                    ], fn($v) => $v !== null && $v !== ''))
+                    : '';
+            @endphp
+            <div class="col-12 text-center py-3" id="load-more" data-next="{{ $apiNext }}">
+                <span class="text-muted small" id="load-more-text">{{ $apiNext ? 'Kéo xuống để tải thêm...' : 'Đã hết sản phẩm' }}</span>
             </div>
         </div>
 
@@ -597,6 +606,80 @@
                 if (!next) observer.disconnect();
             };
 
+            const formatPrice = (n) => {
+                const num = Number(n) || 0;
+                return new Intl.NumberFormat('vi-VN').format(num) + '₫';
+            };
+
+            const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            } [c]));
+
+            const renderMoreJson = (payload) => {
+                const items = Array.isArray(payload?.data) ? payload.data : [];
+                items.forEach((p) => {
+                    const promo = Number(p.promotion) || 0;
+                    const status = !!p.status;
+                    const tagHtml = promo > 0
+                        ? `<div class="tag bg-red">sale -${Math.round(promo)}%</div>`
+                        : `<div class="tag ${status ? 'bg-green' : 'bg-black'}">${status ? 'new' : 'ngưng'}</div>`;
+
+                    const priceHtml = promo > 0
+                        ? `<span class="fw-bold text-danger">${formatPrice(p.final_price)}</span>
+                           <small class="text-muted text-decoration-line-through ms-1">${formatPrice(p.price)}</small>`
+                        : `<span class="fw-bold text-danger">${formatPrice(p.final_price ?? p.price)}</span>`;
+
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-md-4 col-lg-3 d-flex flex-column align-items-center justify-content-center product-item my-3';
+                    col.innerHTML = `
+                        <div class="product">
+                            <img class="lazy-img"
+                                src="${placeholder}"
+                                data-src="${escapeHtml(p.thumbnail_url)}"
+                                alt="${escapeHtml(p.name)}"
+                                loading="lazy"
+                                decoding="async">
+                            <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
+                                <li class="icon mx-3 add-to-cart"
+                                    data-id="${escapeHtml(p.id)}"
+                                    data-name="${escapeHtml(p.name)}"
+                                    data-price="${escapeHtml(p.final_price)}"
+                                    data-image="${escapeHtml(p.thumbnail_url)}">
+                                    <span class="fas fa-shopping-bag"></span>
+                                </li>
+                            </ul>
+                        </div>
+                        ${tagHtml}
+                        <a class="title pt-4 pb-1 text-center d-block text-decoration-none text-dark"
+                            href="${escapeHtml(p.detail_url)}">
+                            ${escapeHtml(p.name)}
+                        </a>
+                        <div class="price">
+                            ${priceHtml}
+                        </div>
+                        <a class="btn btn-sm w-100 mt-auto position-relative overflow-hidden"
+                            style="border-radius: 12px; font-weight: 700; letter-spacing: 0.3px; color:#fff; background:#ee4d2d; border:1px solid #adadad; padding: 6px 10px; height: 36px; line-height: 22px; margin-bottom: 5px;"
+                            href="${escapeHtml(p.detail_url)}">
+                            <span class="position-relative" style="z-index:2;">Xem chi tiết</span>
+                            <span class="position-absolute top-0 start-0 w-100 h-100"
+                                style="background: linear-gradient(135deg, rgba(238,77,45,0.15), rgba(238,77,45,0.08)); z-index:1; border:1px solid rgba(0,0,0,0.05); border-radius: 12px;"></span>
+                        </a>
+                    `;
+                    listEl.appendChild(col);
+                    const img = col.querySelector('img[data-src]');
+                    if (img) attachLazy(img);
+                });
+
+                const next = payload?.next_page_url || '';
+                loadMoreEl.dataset.next = next;
+                loadMoreText.textContent = next ? 'Kéo xuống để tải thêm...' : 'Đã hết sản phẩm';
+                if (!next) observer.disconnect();
+            };
+
             const fetchMore = () => {
                 const next = loadMoreEl.dataset.next;
                 if (!next || loading) return;
@@ -608,21 +691,30 @@
                         }
                     })
                     .then(async (res) => {
-                        const html = await res.text();
+                        const contentType = res.headers.get('content-type') || '';
+                        const raw = await res.text();
                         if (!res.ok) {
                             throw new Error('HTTP ' + res.status);
                         }
-                        return html;
-                    })
-                    .then((html) => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const hasList = !!doc.getElementById('product-list');
-                        const hasLoadMore = !!doc.getElementById('load-more');
-                        if (!hasList || !hasLoadMore) {
-                            throw new Error('Invalid response HTML');
+                        if (contentType.includes('application/json')) {
+                            return JSON.parse(raw || '{}');
                         }
-                        renderMore(html);
+                        // Backward compatible: if API is misconfigured and returns HTML
+                        return raw;
+                    })
+                    .then((data) => {
+                        if (typeof data === 'string') {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(data, 'text/html');
+                            const hasList = !!doc.getElementById('product-list');
+                            const hasLoadMore = !!doc.getElementById('load-more');
+                            if (!hasList || !hasLoadMore) {
+                                throw new Error('Invalid response HTML');
+                            }
+                            renderMore(data);
+                            return;
+                        }
+                        renderMoreJson(data);
                     })
                     .catch((err) => {
                         console.error('Load more failed:', err);

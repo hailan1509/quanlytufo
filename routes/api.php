@@ -20,3 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/orders', [\App\Http\Controllers\Api\OrderController::class, 'store'])
     ->middleware('throttle:orders');
+
+Route::get('/products', \App\Http\Controllers\Api\ProductController::class);
