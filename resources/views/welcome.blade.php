@@ -84,6 +84,14 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
+            background: #f2f2f2;
+            opacity: 0;
+            transition: opacity .25s ease;
+        }
+
+        .product-item .product img.is-loaded {
+            opacity: 1;
         }
 
         .product-item .product .icons {
@@ -379,6 +387,8 @@
                         src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
                         data-src="{{ $imgUrl }}"
                         alt="{{ $product->name }}"
+                        width="600"
+                        height="600"
                         loading="lazy"
                         decoding="async">
                     <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
@@ -542,7 +552,16 @@
                         if (entry.isIntersecting) {
                             const img = entry.target;
                             const src = img.getAttribute('data-src');
-                            if (src) img.src = src;
+                            if (src) {
+                                if (!img.complete) {
+                                    img.addEventListener('load', () => img.classList.add('is-loaded'), {
+                                        once: true
+                                    });
+                                } else {
+                                    img.classList.add('is-loaded');
+                                }
+                                img.src = src;
+                            }
                             obs.unobserve(img);
                         }
                     });
@@ -553,7 +572,12 @@
             } else {
                 images.forEach(img => {
                     const src = img.getAttribute('data-src');
-                    if (src) img.src = src;
+                    if (src) {
+                        img.addEventListener('load', () => img.classList.add('is-loaded'), {
+                            once: true
+                        });
+                        img.src = src;
+                    }
                 });
             }
         })();
@@ -572,9 +596,13 @@
                 if (img.dataset.boundLazy) return;
                 img.dataset.boundLazy = '1';
                 img.classList.add('lazy-img');
+                img.classList.remove('is-loaded');
                 img.src = placeholder;
                 const src = img.getAttribute('data-src');
                 if (!src) return;
+                img.addEventListener('load', () => img.classList.add('is-loaded'), {
+                    once: true
+                });
                 if ('IntersectionObserver' in window) {
                     const obs = new IntersectionObserver((entries, observer) => {
                         entries.forEach(entry => {
@@ -642,6 +670,8 @@
                                 src="${placeholder}"
                                 data-src="${escapeHtml(p.thumbnail_url)}"
                                 alt="${escapeHtml(p.name)}"
+                                width="600"
+                                height="600"
                                 loading="lazy"
                                 decoding="async">
                             <ul class="d-flex align-items-center justify-content-center list-unstyled icons">
