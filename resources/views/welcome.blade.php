@@ -423,8 +423,9 @@
 
         <div class="row">
             @php
+                $appUrl = rtrim(config('app.url'), '/');
                 $apiNext = $products->hasMorePages()
-                    ? url('/api/products') . '?' . http_build_query(array_filter([
+                    ? $appUrl . '/api/products' . '?' . http_build_query(array_filter([
                         'page' => $products->currentPage() + 1,
                         'q' => request('q'),
                         'category' => request('category'),

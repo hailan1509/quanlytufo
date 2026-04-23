@@ -52,9 +52,18 @@ class ProductController extends Controller
             ];
         })->values();
 
+        $appUrl = rtrim(config('app.url'), '/');
+        $nextPageUrl = $products->hasMorePages()
+            ? $appUrl . '/api/products' . '?' . http_build_query(array_filter([
+                'page' => $products->currentPage() + 1,
+                'q' => $request->input('q'),
+                'category' => $request->input('category'),
+            ], fn ($v) => $v !== null && $v !== ''))
+            : null;
+
         return response()->json([
             'data' => $items,
-            'next_page_url' => $products->nextPageUrl(),
+            'next_page_url' => $nextPageUrl,
             'current_page' => $products->currentPage(),
             'per_page' => $products->perPage(),
         ]);
